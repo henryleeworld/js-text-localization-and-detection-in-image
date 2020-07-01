@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <meta property="og:title" content="圖片文件辨識文字和本地化分析" />
+        <meta property="og:description" content="讀取圖片中的文字，並轉換成文字，選擇偵測語言才可以成功辨識正確的照片文字，如果複雜辨識會需要降噪、銳化、二元化等等的影像處理。" />
+        <meta property="og:locale" content="zh_TW" />
+        <meta property="og:type" content="website" />
+        <link rel="stylesheet" type="text/css" href="css/detection.css" />
+        <link href="https://fonts.googleapis.com/css?family=Lato:300,400" rel="stylesheet" type="text/css" />
+        <title>圖片文件辨識文字和本地化分析</title>
+    </head>
+    <body ondragover="return false">
+        <div id="demo">
+            <div id="body">
+                <div id="options">
+                    <div class="option selected" lang="eng">英文</div>
+                    <div class="option" lang="chi_tra">繁體中文</div>
+                </div>
+                <div id="drop-instructions-main">
+                    <p>拖放<span class="drop-instructions">一個英文</span>圖片於這個頁面。</p>
+                </div>
+                <div id="content">
+                    <div>
+                        <canvas id="input-overlay"></canvas>
+                        <img id="input" src="images/eng.jpg" />
+                    </div>
+                    <div id="arrow"></div>
+                    <div>
+                        <div id="log"></div>
+                        <div id="instructions"><span id="clickme" onclick="play()">點擊此處以識別圖片中的文字</span>，或拖放<span class="drop-instructions">一個英文</span>圖片於這個頁面。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="js/dimensions.js" defer></script>
+        <script src="https://unpkg.com/tesseract.js@2.1.0/dist/tesseract.min.js" defer></script>
+        <script src="js/detection.js" defer></script>
+    </body>
+</html>
