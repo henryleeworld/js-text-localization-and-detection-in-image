@@ -1,41 +1,45 @@
 var input = document.getElementById('input')
-var inputOverlay = document.getElementById('input-overlay')
-var ioctx = inputOverlay.getContext('2d')
-var outputText = document.getElementById('log')
+var input_overlay = document.getElementById('input-overlay')
+var ioctx = input_overlay.getContext('2d')
+// var output = document.getElementById('output')
+// var output_overlay = document.getElementById('output-overlay')
+var output_text = document.getElementById('log')
 
 var instructions = document.getElementById('instructions')
 
-var dropInstructions = [].slice.call(document.querySelectorAll('.drop-instructions'))
+var drop_instructions = [].slice.call(document.querySelectorAll('.drop-instructions'))
 var options = [].slice.call(document.querySelectorAll('.option'))
 
+// var octx = output.getContext('2d')
 var language = 'eng'
 var started = false
 var languageImages = {
     eng: 'images/eng.jpg',
-    chi_tra: 'images/chi_tra.jpg',
+    chi_tra: 'images/chi_tra.jpg'
 }
 
-var languageInstructions = {
+var lang_drop_instructions = {
     eng: '一個英文',
-    chi_tra: '一個中文',
+    chi_tra: '一個中文'
 }
 
-var worker = new Tesseract.createWorker({
+const workerPromise = Tesseract.createWorker('eng', 1, {
     logger: progressUpdate,
 });
 
 function setUp() {
-    inputOverlay.width = input.naturalWidth
-    inputOverlay.height = input.naturalHeight
+    input_overlay.width = input.naturalWidth
+    input_overlay.height = input.naturalHeight
 
-    outputText.style.height = input.height + 'px'
+    output_text.style.height = input.height + 'px'
 }
 
 setUp()
 input.onload = setUp
 
+
 function isOutputVisible() {
-    return outputText.getBoundingClientRect().top < dimensions.height
+    return output_text.getBoundingClientRect().top < dimensions.height
 }
 
 function startIfVisible(argument) {
@@ -46,9 +50,7 @@ function start() {
     started = true
 
     async function start() {
-        await worker.load();
-        await worker.loadLanguage('eng');
-        await worker.initialize('eng');
+        const worker = await workerPromise;
         const {
             data
         } = await worker.recognize(input);
@@ -64,17 +66,32 @@ function start() {
 function progressUpdate(packet) {
     var log = document.getElementById('log');
 
-    if (log.firstChild && log.firstChild.status === packet.status) {
+    const statusLabel = {
+        "initializing api": "Initializing API",
+        "initializing api": "Initializing API",
+        "recognizing text": "Recognizing Text",
+        "initializing tesseract": "Initializing Tesseract",
+        "initializing tesseract": "Initializing Tesseract",
+        "loading language traineddata": "Loading Language Traineddata",
+        "loading language traineddata": "Loading Language Traineddata",
+        "loading language traineddata (from cache)": "Loading Language Traineddata",
+        "loading tesseract core": "Loading Tesseract Core",
+        "done": "done"
+    } [packet.status];
+
+    if (!statusLabel) console.log(packet.status);
+
+    if (log.firstChild && log.firstChild.status === statusLabel) {
         if ('progress' in packet) {
             var progress = log.firstChild.querySelector('progress')
             progress.value = packet.progress
         }
     } else {
         var line = document.createElement('div');
-        line.status = packet.status;
+        line.status = statusLabel;
         var status = document.createElement('div')
         status.className = 'status'
-        status.appendChild(document.createTextNode(packet.status))
+        status.appendChild(document.createTextNode(statusLabel))
         line.appendChild(status)
 
         if ('progress' in packet) {
@@ -98,7 +115,12 @@ function progressUpdate(packet) {
 }
 
 function result(res) {
+    // octx.clearRect(0, 0, output.width, output.height)
+    // octx.textAlign = 'left'
+
     console.log('result was:', res)
+    // output_overlay.style.display = 'none'
+    // output_text.innerHTML = res.text
 
     progressUpdate({
         status: 'done',
@@ -117,6 +139,10 @@ function result(res) {
         ioctx.lineTo(w.baseline.x1, w.baseline.y1)
         ioctx.strokeStyle = 'green'
         ioctx.stroke()
+
+        // octx.font = '20px Times';
+        // octx.font = 20 * (b.x1 - b.x0) / octx.measureText(w.text).width + "px Times";
+        // octx.fillText(w.text, b.x0, w.baseline.y0);
     })
 }
 
@@ -124,23 +150,23 @@ document.addEventListener('scroll', startIfVisible)
 startIfVisible()
 
 function clearOverLayAndOutput() {
-    ioctx.clearRect(0, 0, inputOverlay.width, inputOverlay.height)
+    ioctx.clearRect(0, 0, input_overlay.width, input_overlay.height)
 
-    outputText.style.display = 'none'
+    output_text.style.display = 'none'
 
     instructions.style.display = 'block'
-}
 
+    // octx.clearRect(0,0,output.width, output.height)
+}
 
 async function play() {
 
     instructions.style.display = 'none'
-    outputText.style.display = 'block'
-    outputText.innerHTML = ''
-
-    await worker.load();
-    await worker.loadLanguage(language);
-    await worker.initialize(language);
+    output_text.style.display = 'block'
+    output_text.innerHTML = ''
+    // output_overlay.innerHTML = ''
+    const worker = await workerPromise;
+    await worker.reinitialize(language);
     const {
         data
     } = await worker.recognize(input);
@@ -152,8 +178,8 @@ options.forEach(function(option) {
 
         clearOverLayAndOutput()
 
-        dropInstructions.forEach(function(di) {
-            di.innerHTML = languageInstructions[option.lang]
+        drop_instructions.forEach(function(di) {
+            di.innerHTML = lang_drop_instructions[option.lang]
         })
 
         language = option.lang
@@ -164,29 +190,33 @@ options.forEach(function(option) {
         option.className = 'option selected'
         if (option.lang in languageImages) {
             input.src = languageImages[option.lang]
+            // displayPlayButtonFor(option.lang)
         }
     })
 })
+
+const recognizeFromFile = async (file) => {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        input.src = e.target.result;
+        input.onload = function() {
+
+            setUp();
+
+        }
+    };
+    reader.readAsDataURL(file);
+    const worker = await workerPromise;
+    await worker.reinitialize(language);
+    const {
+        data
+    } = await worker.recognize(file);
+    result(data);
+}
 
 document.body.addEventListener('drop', async function(e) {
     e.stopPropagation();
     e.preventDefault();
     var file = e.dataTransfer.files[0]
-    var reader = new FileReader();
-    reader.onload = function(e) {
-        input.src = e.target.result;
-        input.onload = function() {
-            setUp();
-        }
-    };
-    reader.readAsDataURL(file);
-    await worker.load();
-    await worker.loadLanguage(language);
-    await worker.initialize(language);
-    const {
-        data
-    } = await worker.recognize(file);
-    result(data);
+    recognizeFromFile(file);
 })
-
-document.getElementsByClassName('option selected')[0].click();

@@ -1,6 +1,9 @@
 var dimensions = {
+
     width: 0,
+
     height: 0,
+
     getWidth: function() {
         if (window.innerWidth) {
             return window.innerWidth;
