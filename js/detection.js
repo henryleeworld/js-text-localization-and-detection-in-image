@@ -67,16 +67,16 @@ function progressUpdate(packet) {
     var log = document.getElementById('log');
 
     const statusLabel = {
-        "initializing api": "Initializing API",
-        "initializing api": "Initializing API",
-        "recognizing text": "Recognizing Text",
-        "initializing tesseract": "Initializing Tesseract",
-        "initializing tesseract": "Initializing Tesseract",
-        "loading language traineddata": "Loading Language Traineddata",
-        "loading language traineddata": "Loading Language Traineddata",
-        "loading language traineddata (from cache)": "Loading Language Traineddata",
-        "loading tesseract core": "Loading Tesseract Core",
-        "done": "done"
+        "initializing api": "初始化 API",
+        "initializing api": "初始化 API",
+        "recognizing text": "辨識圖片中的文字",
+        "initializing tesseract": "初始化 Tesseract",
+        "initializing tesseract": "初始化 Tesseract",
+        "loading language traineddata": "載入語言訓練資料",
+        "loading language traineddata": "載入語言訓練資料",
+        "loading language traineddata (from cache)": "載入語言訓練資料",
+        "loading tesseract core": "載入 Tesseract 核心",
+        "done": "結束"
     } [packet.status];
 
     if (!statusLabel) console.log(packet.status);

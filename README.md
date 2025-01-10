@@ -11,5 +11,5 @@ $ git clone
 ----
 
 ## 畫面截圖
-![](https://i.imgur.com/vSI77nc.gif)
+![](https://i.imgur.com/uXS4cA5.gif)
 > 想要實現高準確率的識別效果需要自行進行字庫訓練
